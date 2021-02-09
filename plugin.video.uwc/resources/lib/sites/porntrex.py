@@ -329,13 +329,35 @@ def PTChn(url):
 
 @utils.url_dispatcher.register('54', ['url'], ['keyword'])
 def PTSearch(url, keyword=None):
-    searchUrl = url
     if not keyword:
         utils.searchDir(url, 54)
     else:
-        searchUrl = searchUrl + '/' + keyword + '/'
+        searchUrl = url + '/' + keyword + '/'
 #   Changed 19.01.25
         if url.find('javbangers') > 0:
             JHList(searchUrl, 1)
         else:
+            sortoption = Get_Sort()
+            if sortoption:
+                searchUrl += sortoption
+            filteroptions = Get_Filters()
+            if filteroptions:
+                searchUrl += filteroptions
             PTList(searchUrl, 1)
+
+def Get_Sort():
+    sortoptions = {0: 'latest-updates/', 1: 'top-rated/', 2: 'most-popular/', 3: None, 4: 'longest/'}
+    sortvalue = int(utils.addon.getSetting("sortwxf"))
+    if sortvalue not in sortoptions:
+        # PornTrex Default Sort by Most Relevant
+        sortvalue = 3
+        utils.notify('SortError', 'Selected Sort by not available. Using Site Default.')
+    return sortoptions[sortvalue]
+
+def Get_Filters():
+    filteroption_duration = {0: None, 1: 'ten-thirty-min/', 2: 'ten-min/', 3: 'thirty-all-min/'}
+    durationvalue = int(utils.addon.getSetting("filterduration"))
+    if durationvalue not in filteroption_duration:
+        durationvalue = 0
+        utils.notify('FilterError', 'Selected Duration Filter not available. Using Site Default.')
+    return filteroption_duration[durationvalue]

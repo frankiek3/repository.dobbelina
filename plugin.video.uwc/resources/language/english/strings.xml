@@ -9,6 +9,8 @@
     <string id="30012">Latest</string>
     <string id="30013">Top rated</string>
     <string id="30014">Most viewed</string>
+    <string id="30015">Default</string>
+    <string id="30016">Longest</string>
     <string id="30021">Select Sort method for Movies</string>
     <string id="30022">Date</string>
     <string id="30023">Title</string>
@@ -27,8 +29,9 @@
     <string id="30054">Month</string>
     <string id="30055">Year</string>
     <string id="30061">Filter By Duration</string>
-    <string id="30062">Long (20+m)</string>
+    <string id="30062">Long</string>
     <string id="30063">Short (~5m)</string>
+    <string id="30064">Very Long</string>
     <string id="30071">Filter By Quality</string>
     <string id="30072">HD</string>
     <string id="30073">4K</string>
@@ -40,7 +43,6 @@
     <string id="30111">Female</string>
     <string id="30112">Male</string>
     <string id="30113">Couple</string>
-    <string id="30114">Trans</string>
     <string id="30114">Trans</string>
     <string id="30115">Fast (default)</string>
     <string id="30116">Slow</string>

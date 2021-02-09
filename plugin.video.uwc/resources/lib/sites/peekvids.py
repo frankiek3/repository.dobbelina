@@ -21,12 +21,9 @@ import xbmcplugin
 from resources.lib import utils
 
 SITE_URL = 'https://www.peekvids.com'
-sortlistwxf = [utils.addon.getLocalizedString(30012),
-               utils.addon.getLocalizedString(30013),
-               utils.addon.getLocalizedString(30014)]
 
 
-def make_url(url, options=None):
+def make_url(url, options=False):
     if options:
         sortoption = Get_Sort()
         if sortoption:
@@ -46,17 +43,12 @@ def Main():
     utils.addDir('[COLOR hotpink]Categories[/COLOR]', SITE_URL + '/categories', 893, '', '')
     utils.addDir('[COLOR hotpink]Models[/COLOR]', SITE_URL + '/pornstars', 896, '', '')
     utils.addDir('[COLOR hotpink]Search[/COLOR]', SITE_URL + '/sq?q=', 894, '', '')
-    utils.addDir('[COLOR hotpink]Current sort:[/COLOR] ' + sortlistwxf[int(utils.addon.getSetting("sortwxf"))], '', 895, '', '')
-    activefilters = int(int(utils.addon.getSetting("filteruploaded")) > 0)
-    activefilters += int(int(utils.addon.getSetting("filterduration")) > 0)
-    activefilters += int(int(utils.addon.getSetting("filterquality")) > 0)
-    utils.addDir('[COLOR hotpink]Current filters: [/COLOR] ' + str(activefilters), '', 895, '', '')
     utils.addDir('[COLOR hotpink]Channels[/COLOR]', SITE_URL + '/channels', 897, '', '')
     List(SITE_URL)
 
 
 @utils.url_dispatcher.register('891', ['url'])
-def List(url):
+def List(url, options=False):
     try:
         listhtml = utils.getHtml(url, SITE_URL + '/')
     except:
@@ -71,7 +63,7 @@ def List(url):
         return None
     try:
         next_page = re.search(r'"next"[\s]+href="([^"]+)"', listhtml).group(1)
-        utils.addDir('Next Page', make_url(next_page, True), 891, '')
+        utils.addDir('Next Page', make_url(next_page, options), 891, '')
     except:
         pass
     xbmcplugin.endOfDirectory(utils.addon_handle)
@@ -107,7 +99,7 @@ def Search(url, keyword=None):
     if not keyword:
         utils.searchDir(url, 894)
     else:
-        List(make_url(url+keyword.replace(' ', '+'), True))
+        List(make_url(url+keyword.replace(' ', '+'), True), True)
 
 
 @utils.url_dispatcher.register('895')
@@ -117,8 +109,13 @@ def Change_Settings():
 
 
 def Get_Sort():
-    sortoptions = {0: 'time', 1: 'relevance', 2: 'rating'}
-    return sortoptions[int(utils.addon.getSetting("sortwxf"))]
+    sortoptions = {0: 'time', 1: 'rating', 3: None}
+    sortvalue = int(utils.addon.getSetting("sortwxf"))
+    if sortvalue not in sortoptions:
+        # PeekVids Default Sort by Relevance
+        sortvalue = 3
+        utils.notify('SortError', 'Selected Sort by not available. Using Site Default.')
+    return sortoptions[sortvalue]
 
 
 def Get_Filters():
@@ -126,8 +123,19 @@ def Get_Filters():
     filteroption_duration = {0: None, 1: 'long', 2: 'short'}
     filteroption_quality = {0: None, 1: '1', 2: '2'}
     uploadedvalue = int(utils.addon.getSetting("filteruploaded"))
+    if uploadedvalue not in filteroption_uploaded:
+        uploadedvalue = 0
+        utils.notify('FilterError', 'Selected Uploaded Date Filter not available. Using Site Default.')
     durationvalue = int(utils.addon.getSetting("filterduration"))
+    if durationvalue == 3:
+        durationvalue = 1
+    if durationvalue not in filteroption_duration:
+        durationvalue = 0
+        utils.notify('FilterError', 'Selected Duration Filter not available. Using Site Default.')
     qualityvalue = int(utils.addon.getSetting("filterquality"))
+    if qualityvalue not in filteroption_quality:
+        qualityvalue = 0
+        utils.notify('FilterError', 'Selected Quality Filter not available. Using Site Default.')
     filteroptions = {'uploaded': filteroption_uploaded[uploadedvalue],
                      'duration': filteroption_duration[durationvalue], 'quality': filteroption_quality[qualityvalue]}
     return filteroptions

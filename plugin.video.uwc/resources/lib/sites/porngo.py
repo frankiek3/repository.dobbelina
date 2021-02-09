@@ -23,7 +23,6 @@ from resources.lib import utils
 
 BASE_URL = 'https://porngo.com'
 
-sortlistwxf = [utils.addon.getLocalizedString(30012), utils.addon.getLocalizedString(30013), utils.addon.getLocalizedString(30014)]
 
 def make_url(link):
     return link if link.startswith('http') else 'https:' + link if link.startswith('//') else BASE_URL + link
@@ -33,8 +32,6 @@ def make_url(link):
 def ypp_main():
     utils.addDir('[COLOR hotpink]Categories[/COLOR]','https://porngo.com/categories/', 693, '', '')
     utils.addDir('[COLOR hotpink]Search[/COLOR]','https://porngo.com/search/', 694, '', '')
-    Sort = '[COLOR hotpink]Current sort:[/COLOR] ' + sortlistwxf[int(utils.addon.getSetting("sortwxf"))]
-    utils.addDir(Sort, '', 695, '', '')
     ypp_list('https://porngo.com')
 
 
@@ -46,26 +43,18 @@ def ypp_sort():
 @utils.url_dispatcher.register('691', ['url'])
 def ypp_list(url):
     utils.kodilog('RAW URL: ' + url)
-#    sort = ('&s={}'.format(get_ypp_sort(True)) if get_ypp_sort(True) else '') if len(url.split('/')) >= 4 and url.split('/')[3].startswith('search') or url.endswith('date') else '/?s={}'.format(get_ypp_sort())
     sort = ''
-#    utils.kodilog('SORT: ' + sort)
     url = url + sort if sort not in url else url
-#    utils.kodilog(url.split('/')[2])
-#    utils.kodilog(url)
     try:
         listhtml = utils.getHtml(url)
-#        utils.kodilog(listhtml)
     except Exception as e:
         return None
     match = re.compile('''div class="thumb item ".*?href="([^"]+)".*?<img src="([^"]+)".*?alt="([^"]+)".*?duration">([^<]+)<.*?thumb__bage">([^<]+)<''', re.DOTALL | re.IGNORECASE).findall(listhtml)
     for video, img, name, duration, hd in match:
-#        utils.kodilog('Vid Quality: ' + hd)
         duration = duration.strip()
-#        hd_text = ' [COLOR orange]HD[/COLOR] ' if 'HD' in hd else ''
-#       Changed labelling adding Video quality
-	hd = utils.cleantext(hd)
+        # Changed labelling adding Video quality
+        hd = utils.cleantext(hd)
         hd_text = " [COLOR orange]" + hd + "[/COLOR] "
-#        utils.kodilog('Vid Quality Printed: ' + hd_text)
         name = utils.cleantext(name) + hd_text + " [COLOR deeppink]" + duration + "[/COLOR]"
         utils.addDownLink(name, make_url(video), 692, make_url(img), '')
     try:
@@ -108,6 +97,7 @@ def ypp_play(url, name, download=None):
     utils.playvid(videourl, name, download)
 
 
+# No Sort currently available for PornGo
 def get_ypp_sort(search=False):
     sortoptions = {0: 'date', 1: None, 2: None} if search else {0: 'date', 1: 'votes', 2: 'views&m=3days'}
     sortvalue = utils.addon.getSetting("sortwxf")
